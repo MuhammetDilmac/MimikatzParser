@@ -1,0 +1,39 @@
+import os
+import argparse
+
+from lib.parsing import PARSER
+from lib.output import OUTPUT
+
+arg = argparse.ArgumentParser()
+arg.add_argument('-i', metavar='INPUT',
+                 help='Log dosyasını veya log dosyalarının bulunduğu dizini '
+                      'yazınız.', required=True)
+arg.add_argument('-o', metavar='OUTPUT',
+                 help='Verinin çıkartılmasını istediğiniz dizini yazınız.',
+                 required=True)
+arg.add_argument('-t', metavar='TYPE',
+                 help='Lütfen istediğiniz çıktı türünü yazınız.'
+                      '(pdf, txt, html, xml, excel)', required=True)
+arg = arg.parse_args()
+
+if os.path.isfile(arg.i) or os.path.isdir(arg.i):
+    if os.path.isdir(arg.o):
+        parser = PARSER()
+        parsed_data = parser.parsing(arg.i)
+        output = OUTPUT(arg.o, parsed_data)
+        if arg.t == 'pdf':
+            output.pdf()
+        elif arg.t == 'txt':
+            output.txt()
+        elif arg.t == 'html':
+            output.html()
+        elif arg.t == 'xml':
+            output.xml()
+        elif arg.t == 'excel':
+            output.excel()
+        else:
+            print('Geçersiz bir çıktı türü belirttiniz.')
+    else:
+        print('Çıktıyı kaydetmek istediğiniz dizin bulunamadı.')
+else:
+    print('Girdi olarak verdiğiniz yol bir dosya veya dizin değil.')
