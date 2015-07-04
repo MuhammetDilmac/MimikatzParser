@@ -1,7 +1,7 @@
 # MimikatzParser
 Usage:
 ```bash
-python3 main.py -i [INPUT FILE Or Directory] -o [OUTPUT Directory] -t [TYPE{txt, html, xml, pdf, excel}]
+python3 main.py -i [Input File Or Directory] -o [Output Directory] -t [TYPE{txt, html, xml, pdf, excel}]
 ```
 Example:
 ```bash
