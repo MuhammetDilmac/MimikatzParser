@@ -1,8 +1,10 @@
+import sys
 import os
 import argparse
 
-from lib.parsing import PARSER
-from lib.output import OUTPUT
+sys.path.append(os.getcwd())
+from parsing import PARSER
+from output import OUTPUT
 
 arg = argparse.ArgumentParser()
 arg.add_argument('-i', metavar='INPUT',
