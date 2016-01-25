@@ -1,5 +1,8 @@
 import os
 
+import xlsxwriter
+import pdfkit
+
 
 class OUTPUT:
     def __init__(self, path, data):
@@ -8,8 +11,6 @@ class OUTPUT:
         self.filename = 'mimikatz'
 
     def excel(self):
-        import xlsxwriter
-
         workbook = xlsxwriter.Workbook(os.path.join(
             self.path, '.'.join((self.filename, 'xlsx'))))
         worksheet = workbook.add_worksheet()
@@ -37,8 +38,6 @@ class OUTPUT:
         return self.result('xlsx')
 
     def pdf(self):
-        import pdfkit
-
         sourcehtml = '<html><body><style>table{' \
                      'border-collapse: collapse;}td,th{font-size:18px;' \
                      'border-bottom: 1px solid black; padding: 5px 10px}' \

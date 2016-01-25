@@ -1,10 +1,11 @@
-import sys
+#!/usr/bin/env python3
+
 import os
 import argparse
 
-sys.path.append(os.getcwd())
-from parsing import PARSER
-from output import OUTPUT
+
+from mimikatz_parser.parsing import PARSER
+from mimikatz_parser.output import OUTPUT
 
 arg = argparse.ArgumentParser()
 arg.add_argument('-i', metavar='INPUT',
