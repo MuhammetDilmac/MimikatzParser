@@ -3,39 +3,24 @@
 import os
 import argparse
 
-
 from mimikatz_parser.parsing import PARSER
-from mimikatz_parser.output import OUTPUT
 
 arg = argparse.ArgumentParser()
 arg.add_argument('-i', metavar='INPUT',
-                 help='Log dosyasını veya log dosyalarının bulunduğu dizini '
-                      'yazınız.', required=True)
-arg.add_argument('-o', metavar='OUTPUT',
-                 help='Verinin çıkartılmasını istediğiniz dizini yazınız.',
-                 required=True)
-arg.add_argument('-t', metavar='TYPE',
-                 help='Lütfen istediğiniz çıktı türünü yazınız.'
-                      '(pdf, txt, html, xml, excel)', required=True)
+                 help='Log dosyasını veya log dosyalarının bulunduğu dizini yazınız.', required=True, dest='input')
+arg.add_argument('-o', metavar='OUTPUT', help='Verinin çıkartılmasını istediğiniz dizini yazınız.', required=True,
+                 dest='output')
+arg.add_argument('-t', metavar='TYPE', help='Lütfen istediğiniz çıktı türünü yazınız.(pdf, txt, html, xml, excel)',
+                 required=True, dest='type', default='txt')
+arg.add_argument('-l', metavar='LIMIT', help='Şifrelerin gözükecek karakter limiti.', dest='limit', default=0,
+                 type=int)
+arg.add_argument('-a', metavar='AllOneFile', help='Tüm çıktıları tek bir dosyaya yazar.', dest='all', default=False)
+
 arg = arg.parse_args()
 
-if os.path.isfile(arg.i) or os.path.isdir(arg.i):
-    if os.path.isdir(arg.o):
-        parser = PARSER()
-        parsed_data = parser.parsing(arg.i)
-        output = OUTPUT(arg.o, parsed_data)
-        if arg.t == 'pdf':
-            output.pdf()
-        elif arg.t == 'txt':
-            output.txt()
-        elif arg.t == 'html':
-            output.html()
-        elif arg.t == 'xml':
-            output.xml()
-        elif arg.t == 'excel':
-            output.excel()
-        else:
-            print('Geçersiz bir çıktı türü belirttiniz.')
+if os.path.isfile(arg.input) or os.path.isdir(arg.input):
+    if os.path.isdir(arg.output):
+        parser = PARSER(arg)
     else:
         print('Çıktıyı kaydetmek istediğiniz dizin bulunamadı.')
 else:

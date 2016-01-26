@@ -1,18 +1,35 @@
 import os
+from xml.etree import ElementTree as eTree
 
 import xlsxwriter
 import pdfkit
 
 
 class OUTPUT:
-    def __init__(self, path, data):
-        self.path = path
+    def __init__(self, args):
+        self.path = args.output
+        self.type = args.type
+        self.file_name = ''
+        self.data = []
+
+    def give_data(self, data, file_name):
+        self.file_name = file_name.replace(file_name.split('.')[-1], '')
         self.data = data
-        self.filename = 'mimikatz'
+        if self.type == 'txt':
+            self.txt()
+        elif self.type == 'pdf':
+            self.pdf()
+        elif self.type == 'html':
+            self.html()
+        elif self.type == 'xml':
+            self.xml()
+        elif self.type == 'excel':
+            self.excel()
+        else:
+            print('Yanlış çıktı türü seçmeye çalıştınız.')
 
     def excel(self):
-        workbook = xlsxwriter.Workbook(os.path.join(
-            self.path, '.'.join((self.filename, 'xlsx'))))
+        workbook = xlsxwriter.Workbook(os.path.join(self.path, ''.join((self.file_name, 'xlsx'))))
         worksheet = workbook.add_worksheet()
 
         bold = workbook.add_format({'bold': True})
@@ -38,52 +55,47 @@ class OUTPUT:
         return self.result('xlsx')
 
     def pdf(self):
-        sourcehtml = '<html><body><style>table{' \
-                     'border-collapse: collapse;}td,th{font-size:18px;' \
-                     'border-bottom: 1px solid black; padding: 5px 10px}' \
-                     'td+td{border-left:1px solid black}</style><table>' \
-                     '<thead><tr><th><strong>UserName</strong></th><th>' \
-                     '<strong>Password</strong></th><th><strong>Domain' \
-                     '</strong></th></tr></thead><tbody>'
+        source_html = '<html><body><style>table{' \
+                      'border-collapse: collapse;}td,th{font-size:18px;' \
+                      'border-bottom: 1px solid black; padding: 5px 10px}' \
+                      'td+td{border-left:1px solid black}</style><table>' \
+                      '<thead><tr><th><strong>UserName</strong></th><th>' \
+                      '<strong>Password</strong></th><th><strong>Domain' \
+                      '</strong></th></tr></thead><tbody>'
         for username, password, domain in self.data:
-            sourcehtml += '<tr><td>{}</td><td>{}</td><td>{}</td></tr>'. \
-                format(username, password, domain)
-        sourcehtml += '</tbody></table></body></html>'
+            source_html += '<tr><td>{}</td><td>{}</td><td>{}</td></tr>'.format(username, password, domain)
+        source_html += '</tbody></table></body></html>'
 
-        pdfkit.from_string(sourcehtml, os.path.join(self.path, '.'.join(
-            (self.filename, 'pdf'))))
+        pdfkit.from_string(source_html, os.path.join(self.path, ''.join((self.file_name, 'pdf'))))
 
         return self.result('pdf')
 
     def html(self):
-        sourcehtml = '<html><body><style>table{border-collapse: collapse;}' \
-                     'td,th{border-bottom: 1px solid black;padding: 5px ' \
-                     '10px}td+td{border-left:1px solid black}</style><table>' \
-                     '<thead><tr><th><strong>UserName</strong></th><th>' \
-                     '<strong>Password</strong></th><th><strong>Domain' \
-                     '</strong></th></tr></thead><tbody>'
+        source_html = '<html><body><style>table{border-collapse: collapse;}' \
+                      'td,th{border-bottom: 1px solid black;padding: 5px ' \
+                      '10px}td+td{border-left:1px solid black}</style><table>' \
+                      '<thead><tr><th><strong>UserName</strong></th><th>' \
+                      '<strong>Password</strong></th><th><strong>Domain' \
+                      '</strong></th></tr></thead><tbody>'
         for username, password, domain in self.data:
-            sourcehtml += '<tr><td>{}</td><td>{}</td><td>{}</td></tr>'. \
-                format(username, password, domain)
-        sourcehtml += '</tbody></table></body></html>'
+            source_html += '<tr><td>{}</td><td>{}</td><td>{}</td></tr>'.format(username, password, domain)
+        source_html += '</tbody></table></body></html>'
 
-        file = open(os.path.join(self.path, '.'.join(
-            (self.filename, 'html'))), 'w+b')
-        file.write(sourcehtml.encode('utf-8'))
+        file = open(os.path.join(self.path, ''.join((self.file_name, 'html'))), 'w+b')
+        file.write(source_html.encode('utf-8'))
         file.close()
 
         return self.result('html')
 
     def txt(self):
-        data = 'UserName Password Domain'
+        data = 'UserName Password Domain\n'
         for username, password, domain in self.data:
-            data += '\n' + ' '.join((username, password, domain))
-        file = open(os.path.join(self.path, '.'.join(
-            (self.filename, 'txt'))), 'w+b')
+            data += ' '.join((username, password, domain)) + os.linesep
+        file = open(os.path.join(self.path, ''.join((self.file_name, 'log'))), 'w+b')
         file.write(data.encode('utf-8'))
         file.close()
 
-        return self.result('txt')
+        return self.result('log')
 
     def xml(self):
         from xml.etree import ElementTree as eTree
@@ -92,13 +104,12 @@ class OUTPUT:
         for i in self.data:
             self.add_items(eTree.SubElement(root, 'Item'), i)
         tree = eTree.ElementTree(root)
-        tree.write(os.path.join(self.path, '.'.join(
-            (self.filename, 'xml'))), xml_declaration=True, encoding='utf-8')
+        tree.write(os.path.join(self.path, ''.join((self.file_name, 'xml'))), xml_declaration=True, encoding='utf-8')
 
         return self.result('xml')
 
-    def result(self, filetype):
-        file = os.path.join(self.path, '.'.join((self.filename, filetype)))
+    def result(self, file_type):
+        file = os.path.join(self.path, ''.join((self.file_name, file_type)))
         if os.path.isfile(file) is True:
             print('Dosyanız hazır sizi bekliyor: %s' % file)
         else:
@@ -109,8 +120,6 @@ class OUTPUT:
 
     @staticmethod
     def add_items(root, items):
-        from xml.etree import ElementTree as eTree
-
         elem = eTree.SubElement(root, 'username')
         elem.text = items[0]
         elem = eTree.SubElement(root, 'password')
