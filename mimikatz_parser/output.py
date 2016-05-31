@@ -13,7 +13,7 @@ class OUTPUT:
         self.data = []
 
     def give_data(self, data, file_name):
-        self.file_name = file_name.replace(file_name.split('.')[-1], '')
+        self.file_name = file_name
         self.data = data
         if self.type == 'txt':
             self.txt()
@@ -29,7 +29,7 @@ class OUTPUT:
             print('Yanlış çıktı türü seçmeye çalıştınız.')
 
     def excel(self):
-        workbook = xlsxwriter.Workbook(os.path.join(self.path, ''.join((self.file_name, 'xlsx'))))
+        workbook = xlsxwriter.Workbook(os.path.join(self.path, '.'.join((self.file_name, 'xlsx'))))
         worksheet = workbook.add_worksheet()
 
         bold = workbook.add_format({'bold': True})
@@ -66,7 +66,7 @@ class OUTPUT:
             source_html += '<tr><td>{}</td><td>{}</td><td>{}</td></tr>'.format(username, password, domain)
         source_html += '</tbody></table></body></html>'
 
-        pdfkit.from_string(source_html, os.path.join(self.path, ''.join((self.file_name, 'pdf'))))
+        pdfkit.from_string(source_html, os.path.join(self.path, '.'.join((self.file_name, 'pdf'))))
 
         return self.result('pdf')
 
@@ -81,7 +81,7 @@ class OUTPUT:
             source_html += '<tr><td>{}</td><td>{}</td><td>{}</td></tr>'.format(username, password, domain)
         source_html += '</tbody></table></body></html>'
 
-        file = open(os.path.join(self.path, ''.join((self.file_name, 'html'))), 'w+b')
+        file = open(os.path.join(self.path, '.'.join((self.file_name, 'html'))), 'w+b')
         file.write(source_html.encode('utf-8'))
         file.close()
 
@@ -91,25 +91,23 @@ class OUTPUT:
         data = 'UserName Password Domain\n'
         for username, password, domain in self.data:
             data += ' '.join((username, password, domain)) + os.linesep
-        file = open(os.path.join(self.path, ''.join((self.file_name, 'log'))), 'w+b')
+        file = open(os.path.join(self.path, '.'.join((self.file_name, 'txt'))), 'w+b')
         file.write(data.encode('utf-8'))
         file.close()
 
-        return self.result('log')
+        return self.result('txt')
 
     def xml(self):
-        from xml.etree import ElementTree as eTree
-
         root = eTree.Element('AllItems')
         for i in self.data:
             self.add_items(eTree.SubElement(root, 'Item'), i)
         tree = eTree.ElementTree(root)
-        tree.write(os.path.join(self.path, ''.join((self.file_name, 'xml'))), xml_declaration=True, encoding='utf-8')
+        tree.write(os.path.join(self.path, '.'.join((self.file_name, 'xml'))), xml_declaration=True, encoding='utf-8')
 
         return self.result('xml')
 
     def result(self, file_type):
-        file = os.path.join(self.path, ''.join((self.file_name, file_type)))
+        file = os.path.join(self.path, '.'.join((self.file_name, file_type)))
         if os.path.isfile(file) is True:
             print('Dosyanız hazır sizi bekliyor: %s' % file)
         else:
